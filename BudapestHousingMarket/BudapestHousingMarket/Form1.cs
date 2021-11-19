@@ -18,6 +18,10 @@ namespace BudapestHousingMarket
         RealEstateEntities contex = new RealEstateEntities();
         List<Flat> Flats;
 
+        Excel.Application xlApp;
+        Excel.Workbook xlWB;
+        Excel.Worksheet xlSheet;
+
         public Form1()
         {
             InitializeComponent();
@@ -33,21 +37,21 @@ namespace BudapestHousingMarket
                 // Excel elindítása és az applikáció objektum betöltése
                 Excel.Application xlApp = new Excel.Application();
 
-                // Új munkafüzet
+                // Új munkafüzet létrehozása
                 xlWB = xlApp.Workbooks.Add(Missing.Value);
 
-                // Új munkalap
+                // Új munkalap beillesztése az excelbe
                 xlSheet = xlWB.ActiveSheet;
 
                 // Tábla létrehozása
-                //CreateTable();
+                CreateTable();
 
 
                 //felhasználók számára elérhetővé válik
                 xlApp.Visible = true;
                 xlApp.UserControl = true;
             }
-            catch (Exception)
+            catch (Exception exception)
             {
 
                 string errorMsg = string.Format("Error: {0}\nLine: {1}", exception.Message, exception.Source);
@@ -93,7 +97,9 @@ namespace BudapestHousingMarket
                     values[counter, 5] = item.NumberOfRooms;
                     values[counter, 6] = item.FloorArea;
                     values[counter, 7] = item.Price;
-                    values[counter, 8] = "=""+GetCell(counter+2,8)+"*1000000/"+GetCell(counter+2);
+
+                    //Ezt a sort megnézni!!:
+                    values[counter, 8] = "="+GetCell(counter+2,8)+"*1000000/"+GetCell(counter+2, 7);
                     counter++;
                 }
 
@@ -102,6 +108,27 @@ namespace BudapestHousingMarket
                         GetCell(2, 1),
                         GetCell(1 + values.GetLength(0), values.GetLength(1))
                     ).Value2 = values;
+
+
+                Excel.Range headerRange= xlSheet.get_Range(GetCell(1, 1), GetCell(1, headers.Length));
+                headerRange.Font.Bold = true;
+
+                //fejléc: középre rendezés függőlegesen és vizszintesen is
+                headerRange.VerticalAlignment = Excel.XlVAlign.xlVAlignCenter;
+                headerRange.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+
+                headerRange.EntireColumn.AutoFit();
+
+                //nagyíthajuk:
+                headerRange.RowHeight = 60;
+
+                //szinezhetjük
+                headerRange.Interior.Color = Color.Salmon;
+
+                //körbe keretezzük a fejlécet
+                headerRange.BorderAround2(Excel.XlLineStyle.xlDashDotDot, Excel.XlBorderWeight.xlThick);
+
+
             }
         }
 
