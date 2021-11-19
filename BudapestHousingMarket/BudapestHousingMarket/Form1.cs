@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Reflection;
+using Microsoft.Office.Interop.Excel;
 
 namespace BudapestHousingMarket
 {
@@ -17,23 +18,11 @@ namespace BudapestHousingMarket
         RealEstateEntities contex = new RealEstateEntities();
         List<Flat> Flats;
 
-        //A Microsoft Excel alkalmazás
-        Excel.Application xlApp;
-
-        //A létrehozott munkafüzet
-        Excel.Workbook xlWB;
-
-        //Munkalap a munkafüzeten belül
-        Excel.Worksheet xlSheet;
-
         public Form1()
         {
             InitializeComponent();
             LoadData();
             CreateExcel();
-
-
-
 
         }
 
@@ -104,25 +93,38 @@ namespace BudapestHousingMarket
                     values[counter, 5] = item.NumberOfRooms;
                     values[counter, 6] = item.FloorArea;
                     values[counter, 7] = item.Price;
-                    values[counter, 8] = "";
+                    values[counter, 8] = "=""+GetCell(counter+2,8)+"*1000000/"+GetCell(counter+2);
                     counter++;
                 }
+
+                xlSheet.get_Range
+                    (
+                        GetCell(2, 1),
+                        GetCell(1 + values.GetLength(0), values.GetLength(1))
+                    ).Value2 = values;
             }
         }
 
         private void LoadData()
         {
-            List<Flat> Flats;
-            
-            /*RealEstateEntities context = new RealEstateEntities();
+            Flats = contex.Flats.ToList();
+        }
 
-            if (xlApp == null)
+        private string GetCell(int x, int y)
+        {
+            string ExcelCoordinate = "";
+            int dividend = y;
+            int modulo;
+
+            while (dividend > 0)
             {
-                MessageBox.Show("Excel is not properly installed!!");
-                return;
+                modulo = (dividend - 1) % 26;
+                ExcelCoordinate = Convert.ToChar(65 + modulo).ToString() + ExcelCoordinate;
+                dividend = (int)((dividend - modulo) / 26);
             }
+            ExcelCoordinate += x.ToString();
 
-            Flats = contex.Flats.ToList();*/
+            return ExcelCoordinate;
         }
 
 
